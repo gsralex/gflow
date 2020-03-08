@@ -80,7 +80,7 @@ public class FlowExecutorState {
         for (FlowJob flowJob : flowJobs) {
             nodeMap.put(flowJob.getId(),
                     new ExecuteNode().setJobId(flowJob.getId()).setJobType(flowJob.getJobType())
-                            .setJobStatus(JobStatus.PENDING));
+                            .setJobStatus(JobStatus.PENDING).setJobDesc(flowJob.getJobDesc()));
         }
         for (FlowJob flowJob : flowJobs) {
             ExecuteNode executeNode = nodeMap.get(flowJob.getId());

@@ -17,6 +17,8 @@ public class ExecuteNode  {
     private JobType jobType;
 
     private JobStatus jobStatus;
+
+    private String jobDesc;
     /**
      * 依赖
      */
@@ -64,6 +66,15 @@ public class ExecuteNode  {
 
     public ExecuteNode setJobStatus(JobStatus jobStatus) {
         this.jobStatus = jobStatus;
+        return this;
+    }
+
+    public String getJobDesc() {
+        return jobDesc;
+    }
+
+    public ExecuteNode setJobDesc(String jobDesc) {
+        this.jobDesc = jobDesc;
         return this;
     }
 

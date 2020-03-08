@@ -114,9 +114,8 @@ public class FlowExecutor {
                             .setId(node.getFlowJobExecId()).setStatus(JobStatus.RUNNING));
                 }
                 flowExecutorState.updateNodeStatus(node, JobStatus.RUNNING);
-                JobParam jobParam = new JobParam();
                 if (node.getJobType() == JobType.SHELL) {
-                    ShellJobExecutor shellJobExecutor = new ShellJobExecutor(jobParam);
+                    ShellJobExecutor shellJobExecutor = new ShellJobExecutor(node);
                     shellJobExecutor.execute();
                 }
                 success = true;

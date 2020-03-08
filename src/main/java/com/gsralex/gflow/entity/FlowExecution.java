@@ -1,5 +1,7 @@
 package com.gsralex.gflow.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.gsralex.gflow.common.enums.JobStatus;
 
 import java.util.Date;
@@ -9,6 +11,7 @@ import java.util.Date;
  * @date 2020/3/1
  */
 public class FlowExecution {
+    @TableId(type = IdType.AUTO)
     private Long id;
     private Long flowId;
     private Long versionId;

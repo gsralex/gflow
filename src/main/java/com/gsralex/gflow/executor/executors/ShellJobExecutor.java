@@ -1,8 +1,12 @@
 package com.gsralex.gflow.executor.executors;
 
-import com.gsralex.gflow.executor.JobParam;
+import com.gsralex.gflow.common.exception.CommonException;
+import com.gsralex.gflow.executor.ExecuteNode;
+import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -15,24 +19,35 @@ public class ShellJobExecutor extends AbstractJobExecutor {
     private static final int EXIT_SUCCESS_CODE = 0;
     private List<String> commandLines = new ArrayList<>();
     private Process process;
+    private ExecuteNode node;
+    private static final String LINE_DELIM = "\n";
 
-    public ShellJobExecutor(JobParam jobParam) {
-        StringTokenizer tokenizer = new StringTokenizer(jobParam.getJobDesc());
-        while (tokenizer.hasMoreTokens()) {
-            tokenizer.hasMoreElements();
-        }
+    public ShellJobExecutor(ExecuteNode node) {
+        this.node = node;
     }
 
 
     @Override
     public void execute() throws Exception {
-        ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command();
-        process = processBuilder.start();
-        if (process.exitValue() != EXIT_SUCCESS_CODE) {
-
+        List<String> lines = Arrays.asList(StringUtils.split(node.getJobDesc(), LINE_DELIM));
+        for (String line : lines) {
+            StringTokenizer tokenizer = new StringTokenizer(line, "\r");
+            while (tokenizer.hasMoreTokens()) {
+                commandLines.add(tokenizer.nextToken());
+            }
+            executeProcess(commandLines);
         }
     }
+
+    private void executeProcess(List<String> commandLines) throws IOException {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command(commandLines);
+        process = processBuilder.start();
+        if (process.exitValue() != EXIT_SUCCESS_CODE) {
+            throw new CommonException("Shell 执行失败");
+        }
+    }
+
 
     @Override
     public boolean isCanceled() {
