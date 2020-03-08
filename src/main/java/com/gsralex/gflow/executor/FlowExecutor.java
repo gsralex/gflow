@@ -38,7 +38,7 @@ public class FlowExecutor {
     private static final int PAUSE_WAIT_MS = 10000;
     private static final int RUNNING_WAIT_MS = 10000;
 
-    private static ExecutorService jobExecutors = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE,
+    private static ExecutorService jobExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE,
             0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(CAPACITY_POOL_QUEUE), new ThreadFactoryBuilder()
             .setNameFormat("gFlow-job-executor-thread-%d").build(), new ThreadPoolExecutor.AbortPolicy());
@@ -101,7 +101,7 @@ public class FlowExecutor {
     }
 
     private void executeJob(ExecuteNode node) {
-        jobExecutors.submit(() -> {
+        jobExecutor.submit(() -> {
             boolean success;
             try {
                 if (Objects.isNull(node.getFlowJobExecId())) {
