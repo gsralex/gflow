@@ -45,14 +45,13 @@ public class FlowExecutor {
 
     private FlowExecutorState flowExecutorState;
     private boolean paused = false;
-    private Object pauseObject = new Object();
+    private final Object pauseObject = new Object();
     private boolean stopped = false;
     private Object runningObject = new Object();
 
     private Map<String, String> params;
 
     private List<Consumer<Long>> flowFinishedListeners = new ArrayList<>();
-    private List<ExecuteNode> retryFailedJobs = new ArrayList<>();
 
     @Autowired
     private FlowJobExecutionMapper flowJobExecutionMapper;
@@ -73,7 +72,9 @@ public class FlowExecutor {
         try {
             while (!flowExecutorState.isFinished()) {
                 while (paused) {
-                    pauseObject.wait(PAUSE_WAIT_MS);
+                    synchronized (pauseObject) {
+                        pauseObject.wait(PAUSE_WAIT_MS);
+                    }
                 }
                 if (stopped) {
                     //kill running jobs
@@ -86,7 +87,9 @@ public class FlowExecutor {
                     for (ExecuteNode retryFailedJob : flowExecutorState.listRetryFailedJobs()) {
                         executeJob(retryFailedJob);
                     }
-                    runningObject.wait(RUNNING_WAIT_MS);
+                    synchronized (runningObject) {
+                        runningObject.wait(RUNNING_WAIT_MS);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -94,10 +97,11 @@ public class FlowExecutor {
         }
         if (stopped) {
             updateFlowFinished(JobStatus.STOPPED);
+        } else {
+            updateFlowFinished(JobStatus.SUCCESS);
         }
         notifyFlowFinishedListener();
         LOGGER.info("flow finished execId: {}", execId);
-
     }
 
     private void executeJob(ExecuteNode node) {
@@ -130,9 +134,12 @@ public class FlowExecutor {
                 updateFlowJobFinished(JobStatus.FAILED);
                 flowExecutorState.updateNodeStatus(node, JobStatus.FAILED);
             }
-            runningObject.notifyAll();
+            synchronized (runningObject) {
+                runningObject.notifyAll();
+            }
         });
     }
+
 
     /**
      * 暂停flow
@@ -147,7 +154,9 @@ public class FlowExecutor {
      */
     public void resumeFlow() {
         paused = false;
-        pauseObject.notifyAll();
+        synchronized (runningObject) {
+            runningObject.notifyAll();
+        }
         updateFlow(JobStatus.RUNNING);
     }
 
@@ -157,6 +166,9 @@ public class FlowExecutor {
     public void stopFlow() {
         if (paused) {
             resumeFlow();
+        }
+        synchronized (runningObject) {
+            runningObject.notifyAll();
         }
         stopped = true;
     }
@@ -176,6 +188,7 @@ public class FlowExecutor {
 
     private void updateFlowFinished(JobStatus jobStatus) {
         flowExecutionMapper.updateById(new FlowExecution().setId(flowExecutorState.getExecId())
+                .setEndTime(new Date())
                 .setStatus(jobStatus));
     }
 

@@ -31,7 +31,7 @@ public class ShellJobExecutor extends AbstractJobExecutor {
     public void execute() throws Exception {
         List<String> lines = Arrays.asList(StringUtils.split(node.getJobDesc(), LINE_DELIM));
         for (String line : lines) {
-            StringTokenizer tokenizer = new StringTokenizer(line, "\r");
+            StringTokenizer tokenizer = new StringTokenizer(line, " ");
             while (tokenizer.hasMoreTokens()) {
                 commandLines.add(tokenizer.nextToken());
             }
@@ -39,10 +39,11 @@ public class ShellJobExecutor extends AbstractJobExecutor {
         }
     }
 
-    private void executeProcess(List<String> commandLines) throws IOException {
+    private void executeProcess(List<String> commandLines) throws IOException, InterruptedException {
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command(commandLines);
         process = processBuilder.start();
+        process.waitFor();
         if (process.exitValue() != EXIT_SUCCESS_CODE) {
             throw new CommonException("Shell 执行失败");
         }

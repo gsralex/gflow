@@ -29,12 +29,12 @@ public class FlowExecutorState {
         initPendingJobs();
     }
 
-    public Set<ExecuteNode> listPendingJobs() {
+    public synchronized Set<ExecuteNode> listPendingJobs() {
         return pendingNodes;
     }
 
     public synchronized Set<ExecuteNode> listRetryFailedJobs() {
-        Set<ExecuteNode> retryFailedJobs = new TreeSet<>();
+        Set<ExecuteNode> retryFailedJobs = new LinkedHashSet<>();
         if (retried) {
             for (ExecuteNode node : failedNodes) {
                 if (node.getJobStatus() == JobStatus.FAILED) {
@@ -56,7 +56,20 @@ public class FlowExecutorState {
     }
 
     public boolean isFinished() {
-        return !nodeMap.values().stream().anyMatch(x -> x.getJobStatus().isFinished() == false);
+        for (ExecuteNode node : nodeMap.values()) {
+            boolean nodeFinished = false;
+            if (node.getJobStatus() == JobStatus.SUCCESS || node.getJobStatus() == JobStatus.STOPPED) {
+                nodeFinished = true;
+            } else if (node.getJobStatus() == JobStatus.FAILED) {
+                if (node.getRetries() >= MAX_RETRY_CNT) {
+                    nodeFinished = true;
+                }
+            }
+            if (!nodeFinished) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public synchronized void updateNodeStatus(ExecuteNode node, JobStatus jobStatus) {
@@ -65,6 +78,7 @@ public class FlowExecutorState {
             if (failedNodes.contains(node)) {
                 failedNodes.remove(node);
             }
+            pendingNodes.remove(node);
             for (ExecuteNode next : node.getNextJobs()) {
                 long successCnt = next.getPreJobs().stream().filter(j -> j.getJobStatus() == JobStatus.SUCCESS).count();
                 if (next.getPreJobs().size() == successCnt) {
@@ -72,6 +86,7 @@ public class FlowExecutorState {
                 }
             }
         } else if (jobStatus == JobStatus.FAILED) {
+            pendingNodes.remove(node);
             failedNodes.add(node);
         }
     }
