@@ -30,7 +30,9 @@ public class FlowExecutorState {
     }
 
     public synchronized Set<ExecuteNode> listPendingJobs() {
-        return pendingNodes;
+        Set<ExecuteNode> pendingNodesClone= new LinkedHashSet<>(pendingNodes);
+        pendingNodes.clear();
+        return pendingNodesClone;
     }
 
     public synchronized Set<ExecuteNode> listRetryFailedJobs() {
@@ -78,7 +80,6 @@ public class FlowExecutorState {
             if (failedNodes.contains(node)) {
                 failedNodes.remove(node);
             }
-            pendingNodes.remove(node);
             for (ExecuteNode next : node.getNextJobs()) {
                 long successCnt = next.getPreJobs().stream().filter(j -> j.getJobStatus() == JobStatus.SUCCESS).count();
                 if (next.getPreJobs().size() == successCnt) {
@@ -86,7 +87,6 @@ public class FlowExecutorState {
                 }
             }
         } else if (jobStatus == JobStatus.FAILED) {
-            pendingNodes.remove(node);
             failedNodes.add(node);
         }
     }

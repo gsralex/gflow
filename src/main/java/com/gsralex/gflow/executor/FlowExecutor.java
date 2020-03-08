@@ -178,7 +178,9 @@ public class FlowExecutor {
      */
     public synchronized void retryFailedJobs() {
         this.flowExecutorState.setRetried(true);
-        runningObject.notifyAll();
+        synchronized (runningObject) {
+            runningObject.notifyAll();
+        }
     }
 
     private void updateFlow(JobStatus jobStatus) {
