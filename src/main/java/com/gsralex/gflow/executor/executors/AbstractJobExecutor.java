@@ -1,19 +1,15 @@
 package com.gsralex.gflow.executor.executors;
 
-import java.io.IOException;
 
 /**
  * @author gsralex
  * @date 2020/3/1
  */
-public class AbstractJobExecutor implements JobExecutor {
-
+public abstract class AbstractJobExecutor implements JobExecutor {
 
 
     @Override
-    public void execute() throws Exception {
-
-    }
+    public abstract void execute() throws Exception;
 
     @Override
     public boolean isCanceled() {
@@ -21,7 +17,5 @@ public class AbstractJobExecutor implements JobExecutor {
     }
 
     @Override
-    public void cancel() {
-
-    }
+    public abstract void cancel();
 }
