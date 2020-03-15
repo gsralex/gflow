@@ -61,7 +61,7 @@ public class FlowExecutor {
     public FlowExecutor(Long execId,
                         List<FlowJob> flowJobs,
                         List<FlowJobExecution> flowExecutions,
-                        Map<String, String> params) {
+                        Map<String, Object> params) {
         this.execId = execId;
         this.flowExecutorState = new FlowExecutorState(execId, flowJobs, flowExecutions);
     }

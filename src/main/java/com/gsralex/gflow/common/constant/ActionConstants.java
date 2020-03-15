@@ -6,6 +6,8 @@ package com.gsralex.gflow.common.constant;
  */
 public class ActionConstants {
 
-    public static final String ACTION_EXECUTE_FLOW = "execute_flow";
-    public static final String ACTION_PAUSE_FLOW = "pause_flow";
+    public static final String EXECUTE_FLOW = "execute_flow";
+    public static final String PAUSE_FLOW = "pause_flow";
+    public static final String STOP_FLOW = "stop_flow";
+
 }

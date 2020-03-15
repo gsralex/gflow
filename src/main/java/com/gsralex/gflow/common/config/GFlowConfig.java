@@ -13,7 +13,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
  */
 @Configuration
 @ComponentScan("com.gsralex.gflow")
-//@PropertySource("classpath:application.properties")
+@PropertySource("classpath:application.properties")
 public class GFlowConfig {
 
     @Value("${datasource.url:jdbc:mysql://sql.w45.vhostgo.com:3306/hntqg}")

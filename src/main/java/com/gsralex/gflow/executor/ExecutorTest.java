@@ -17,7 +17,7 @@ public class ExecutorTest {
     @Autowired
     private ExecutorService executorService;
 
-    public void executeFlow(Long executionId, Map<String, String> params) {
+    public void executeFlow(Long executionId, Map<String, Object> params) {
         executorService.executeFlow(executionId, params);
     }
 
