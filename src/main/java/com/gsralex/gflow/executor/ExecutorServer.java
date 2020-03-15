@@ -1,5 +1,6 @@
 package com.gsralex.gflow.executor;
 
+import com.gsralex.gflow.common.config.GFlowConfig;
 import com.gsralex.gflow.common.spring.SpringContextUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -8,18 +9,25 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author gsralex
  * @version 2020-01-05
  */
+@Component
 public class ExecutorServer {
-    public ExecutorServer(){
+
+    @Autowired
+    private GFlowConfig config;
+
+    public ExecutorServer() {
     }
 
-    private static final Logger LOGGER= LoggerFactory.getLogger(ExecutorServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExecutorServer.class);
 
-    public void serve(int port){
+    public void serve() {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
@@ -32,14 +40,13 @@ public class ExecutorServer {
                     protected void initChannel(NioSocketChannel ch) {
                     }
                 });
-        serverBootstrap.bind(port);
-        SpringContextUtils.initialize();
+        serverBootstrap.bind(config.getExecutorPort());
     }
 
 
-    public static void main(String[] args){
-        ExecutorServer server=new ExecutorServer();
-        server.serve(8080);
-
+    public static void main(String[] args) {
+        SpringContextUtils.initialize();
+        ExecutorServer server = SpringContextUtils.getBean(ExecutorServer.class);
+        server.serve();
     }
 }

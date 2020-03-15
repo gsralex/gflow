@@ -47,9 +47,7 @@ public class FlowExecutor {
     private boolean paused = false;
     private final Object pauseObject = new Object();
     private boolean stopped = false;
-    private Object runningObject = new Object();
-
-    private Map<String, String> params;
+    private final Object runningObject = new Object();
 
     private List<Consumer<Long>> flowFinishedListeners = new ArrayList<>();
 
@@ -62,14 +60,15 @@ public class FlowExecutor {
 
     public FlowExecutor(Long execId,
                         List<FlowJob> flowJobs,
+                        List<FlowJobExecution> flowExecutions,
                         Map<String, String> params) {
         this.execId = execId;
-        this.flowExecutorState = new FlowExecutorState(execId, flowJobs);
-        this.params = params;
+        this.flowExecutorState = new FlowExecutorState(execId, flowJobs, flowExecutions);
     }
 
     public void runFlow() {
         try {
+            updateFlow(JobStatus.RUNNING);
             while (!flowExecutorState.isFinished()) {
                 while (paused) {
                     synchronized (pauseObject) {

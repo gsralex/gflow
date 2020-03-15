@@ -2,15 +2,18 @@ package com.gsralex.gflow.executor;
 
 import com.gsralex.gflow.common.enums.JobStatus;
 import com.gsralex.gflow.common.enums.JobType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author gsralex
  * @date 2020/3/1
  */
-public class ExecuteNode  {
+public class ExecuteNode {
 
     private Long flowJobExecId;
     private Long jobId;
@@ -61,6 +64,9 @@ public class ExecuteNode  {
     }
 
     public JobStatus getJobStatus() {
+        if (Objects.isNull(jobStatus)) {
+            return JobStatus.PENDING;
+        }
         return jobStatus;
     }
 
@@ -103,5 +109,34 @@ public class ExecuteNode  {
     public ExecuteNode setRetries(int retries) {
         this.retries = retries;
         return this;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ExecuteNode that = (ExecuteNode) o;
+
+        return new EqualsBuilder()
+                .append(flowJobExecId, that.flowJobExecId)
+                .append(jobId, that.jobId)
+                .append(jobType, that.jobType)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(flowJobExecId)
+                .append(jobId)
+                .append(jobType)
+                .toHashCode();
     }
 }

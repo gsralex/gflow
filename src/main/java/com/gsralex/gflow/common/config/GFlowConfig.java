@@ -25,6 +25,10 @@ public class GFlowConfig {
     @Value("${datasource.password:X3d8c7j6x99}")
     private String password;
 
+
+    @Value("${gflow.executor.port}")
+    private int executorPort;
+
     public String getUrl() {
         return url;
     }
@@ -39,6 +43,10 @@ public class GFlowConfig {
 
     public String getPassword() {
         return password;
+    }
+
+    public int getExecutorPort() {
+        return executorPort;
     }
 
     @Bean

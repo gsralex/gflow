@@ -48,17 +48,16 @@ public class ExecutorService {
             .setNameFormat("gFlow-flow-executor-thread-%d").build(), new ThreadPoolExecutor.AbortPolicy());
 
 
-    public void executeFlow(Long execId, Map<String, String> params) {
+    public synchronized void executeFlow(Long execId, Map<String, String> params) {
         Validate.notNull(execId, "请传递execId");
         FlowExecution flowExecution = getFlowExecution(execId);
-        Validate.isTrue(flowExecution.getStatus() == JobStatus.PENDING, "任务已经执行");
         Validate.notNull(flowExecution, "找不到执行任务 execId: {}", execId);
+        Validate.isTrue(flowExecution.getStatus() == JobStatus.PENDING, "任务已经执行了");
+        Validate.isTrue(!runningFlows.contains(execId), "任务已经执行了");
         List<FlowJob> flowJobs = listFlowJobs(flowExecution.getFlowId(), flowExecution.getVersionId());
         Validate.noNullElements(flowJobs, "当前flow下没有包含jobs");
-        FlowExecutor flowExecutor = SpringContextUtils.getBean(FlowExecutor.class, execId, flowJobs, params);
-        flowExecutors.submit(() -> {
-            flowExecutor.runFlow();
-        });
+        FlowExecutor flowExecutor = SpringContextUtils.getBean(FlowExecutor.class, execId, flowJobs, null, params);
+        flowExecutors.submit(flowExecutor::runFlow);
         flowExecutor.addFlowFinishedListener(this::onFlowFinished);
         runningFlows.put(execId, flowExecutor);
     }

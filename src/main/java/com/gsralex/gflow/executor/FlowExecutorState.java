@@ -2,6 +2,7 @@ package com.gsralex.gflow.executor;
 
 import com.gsralex.gflow.common.enums.JobStatus;
 import com.gsralex.gflow.entity.FlowJob;
+import com.gsralex.gflow.entity.FlowJobExecution;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -12,30 +13,38 @@ import java.util.stream.Collectors;
  * @author gsralex
  * @date 2020/3/1
  */
-public class FlowExecutorState {
+class FlowExecutorState {
 
     private Long execId;
     private Map<Long, ExecuteNode> nodeMap = new HashMap<>();
-    private volatile Set<ExecuteNode> pendingNodes = new LinkedHashSet<>(100);
-    private volatile Set<ExecuteNode> failedNodes = new LinkedHashSet<>(100);
+    private Set<ExecuteNode> pendingNodes = new LinkedHashSet<>();
+    private Set<ExecuteNode> failedNodes = new LinkedHashSet<>();
 
     private static final int MAX_RETRY_CNT = 3;
 
     private boolean retried = false;
 
-    public FlowExecutorState(Long execId, List<FlowJob> flowJobs) {
+    private List<FlowJobExecution> flowJobExecutions;
+
+    FlowExecutorState(Long execId, List<FlowJob> flowJobs, List<FlowJobExecution> flowExecutions) {
         this.execId = execId;
+        if (Objects.nonNull(flowExecutions)) {
+            this.flowJobExecutions = flowExecutions;
+        } else {
+            this.flowJobExecutions = new ArrayList<>();
+        }
         parseDagNode(flowJobs);
+        initJobsStatus();
         initPendingJobs();
     }
 
-    public synchronized Set<ExecuteNode> listPendingJobs() {
-        Set<ExecuteNode> pendingNodesClone= new LinkedHashSet<>(pendingNodes);
+    synchronized Set<ExecuteNode> listPendingJobs() {
+        Set<ExecuteNode> pendingNodesClone = new LinkedHashSet<>(pendingNodes);
         pendingNodes.clear();
         return pendingNodesClone;
     }
 
-    public synchronized Set<ExecuteNode> listRetryFailedJobs() {
+    synchronized Set<ExecuteNode> listRetryFailedJobs() {
         Set<ExecuteNode> retryFailedJobs = new LinkedHashSet<>();
         if (retried) {
             for (ExecuteNode node : failedNodes) {
@@ -57,7 +66,7 @@ public class FlowExecutorState {
         return retryFailedJobs;
     }
 
-    public boolean isFinished() {
+    boolean isFinished() {
         for (ExecuteNode node : nodeMap.values()) {
             boolean nodeFinished = false;
             if (node.getJobStatus() == JobStatus.SUCCESS || node.getJobStatus() == JobStatus.STOPPED) {
@@ -74,12 +83,10 @@ public class FlowExecutorState {
         return true;
     }
 
-    public synchronized void updateNodeStatus(ExecuteNode node, JobStatus jobStatus) {
+    synchronized void updateNodeStatus(ExecuteNode node, JobStatus jobStatus) {
         node.setJobStatus(jobStatus);
         if (jobStatus == JobStatus.SUCCESS) {
-            if (failedNodes.contains(node)) {
-                failedNodes.remove(node);
-            }
+            failedNodes.remove(node);
             for (ExecuteNode next : node.getNextJobs()) {
                 long successCnt = next.getPreJobs().stream().filter(j -> j.getJobStatus() == JobStatus.SUCCESS).count();
                 if (next.getPreJobs().size() == successCnt) {
@@ -100,15 +107,15 @@ public class FlowExecutorState {
         for (FlowJob flowJob : flowJobs) {
             ExecuteNode executeNode = nodeMap.get(flowJob.getId());
             if (StringUtils.isNotBlank(flowJob.getNextJobs())) {
-                List<Long> nextJobIds = Arrays.asList(StringUtils.split(flowJob.getNextJobs(), ","))
-                        .stream().map(n -> Long.parseLong(n)).collect(Collectors.toList());
+                List<Long> nextJobIds = Arrays.stream(StringUtils.split(flowJob.getNextJobs(), ","))
+                        .map(Long::parseLong).collect(Collectors.toList());
                 for (Long nextJobId : nextJobIds) {
                     executeNode.getNextJobs().add(nodeMap.get(nextJobId));
                 }
             }
             if (StringUtils.isNotBlank(flowJob.getPreJobs())) {
-                List<Long> preJobIds = Arrays.asList(StringUtils.split(flowJob.getPreJobs(), ","))
-                        .stream().map(n -> Long.parseLong(n)).collect(Collectors.toList());
+                List<Long> preJobIds = Arrays.stream(StringUtils.split(flowJob.getPreJobs(), ","))
+                        .map(Long::parseLong).collect(Collectors.toList());
                 for (Long preJobId : preJobIds) {
                     executeNode.getPreJobs().add(nodeMap.get(preJobId));
                 }
@@ -116,19 +123,31 @@ public class FlowExecutorState {
         }
     }
 
+    private void initJobsStatus() {
+        if (CollectionUtils.isEmpty(flowJobExecutions)) {
+            return;
+        }
+        for (FlowJobExecution execution : flowJobExecutions) {
+            nodeMap.get(execution.getJobId()).setJobStatus(execution.getStatus());
+        }
+    }
+
     private void initPendingJobs() {
         for (ExecuteNode node : nodeMap.values()) {
-            if (CollectionUtils.isEmpty(node.getPreJobs())) {
-                pendingNodes.add(node);
+            if (node.getJobStatus() == JobStatus.PENDING) {
+                //没有不成功的
+                if (!node.getPreJobs().stream().anyMatch(j -> j.getJobStatus() != JobStatus.SUCCESS)) {
+                    pendingNodes.add(node);
+                }
             }
         }
     }
 
-    public Long getExecId() {
+    Long getExecId() {
         return execId;
     }
 
-    public void setRetried(boolean retried) {
+    void setRetried(boolean retried) {
         this.retried = retried;
     }
 }
