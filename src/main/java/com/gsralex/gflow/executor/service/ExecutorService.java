@@ -48,7 +48,7 @@ public class ExecutorService {
             .setNameFormat("gFlow-flow-executor-thread-%d").build(), new ThreadPoolExecutor.AbortPolicy());
 
 
-    public synchronized void executeFlow(Long execId, Map<String, Object> params) {
+    public synchronized void executeFlow(Long execId, Map<String, Object> params) throws Exception {
         Validate.notNull(execId, "请传递execId");
         FlowExecution flowExecution = getFlowExecution(execId);
         Validate.notNull(flowExecution, "找不到执行任务 execId: {}", execId);

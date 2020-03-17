@@ -27,6 +27,7 @@
         <hikari.version>3.4.0</hikari.version>
         <mysql.version>5.1.48</mysql.version>
         <junit.version>4.13</junit.version>
+        <protostuff.version>1.5.9</protostuff.version>
     </properties>
 
 
@@ -93,5 +94,22 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-core</artifactId>
+            <version>${protostuff.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-runtime</artifactId>
+            <version>${protostuff.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 </project>

@@ -1,6 +1,7 @@
 package com.gsralex.gflow.common.spring;
 
 import com.gsralex.gflow.common.config.GFlowConfig;
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -16,7 +17,7 @@ public class SpringContextUtils {
         context = new AnnotationConfigApplicationContext(GFlowConfig.class);
     }
 
-    public static <T> T getBean(Class<T> aClass, Object... args) {
+    public static <T> T getBean(Class<T> aClass, Object... args) throws BeansException {
         return context.getBean(aClass, args);
     }
 }

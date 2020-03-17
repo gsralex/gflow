@@ -16,9 +16,9 @@ import static com.gsralex.gflow.common.constant.ActionConstants.*;
  * @date 2020/2/2
  */
 @Service
-public class ExecutorHandler extends SimpleChannelInboundHandler<GFlowMessage> {
+public class ExecutorServerHandler extends SimpleChannelInboundHandler<GFlowMessage> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExecutorHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExecutorServerHandler.class);
 
     @Autowired
     private ExecutorService executorService;
