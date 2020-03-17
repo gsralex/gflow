@@ -6,8 +6,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 
 /**
  * @author niweiwei
- * @CopyRight (C) http://www.xin.com
- * @email niweiwei@xin.com
  * @date 2020/3/17
  * @Description
  */
