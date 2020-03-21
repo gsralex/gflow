@@ -15,14 +15,7 @@ import java.util.List;
  * @date 2020/1/29
  */
 public class SchedulerServer {
-
-
-    private List<ParamSubstitutor> substitutors = new ArrayList<>();
-
-    public void addParamSubstitutor(String key, ParamSubstitutor paramSubstitutor) {
-
-    }
-
+    
     public SchedulerServer() {
         //TODO:load config
         config = new SchedulerConfig();

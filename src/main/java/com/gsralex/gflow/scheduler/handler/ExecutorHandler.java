@@ -1,22 +1,18 @@
 package com.gsralex.gflow.scheduler.handler;
 
-import com.gsralex.gflow.common.message.GFlowMessage;
-import io.netty.buffer.ByteBuf;
+import com.gsralex.gflow.common.message.GFlowRequest;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
-
-import java.nio.charset.Charset;
 
 /**
  * @author gsralex
  * @date 2020/3/1
  */
-public class ExecutorHandler extends SimpleChannelInboundHandler<GFlowMessage> {
+public class ExecutorHandler extends SimpleChannelInboundHandler<GFlowRequest> {
 
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, GFlowMessage gFlowMessage) throws Exception {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, GFlowRequest gFlowRequest) throws Exception {
 
     }
 }

@@ -1,6 +1,7 @@
 package com.gsralex.gflow.scheduler.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.gsralex.gflow.executor.client.ExecutorClient;
 import com.gsralex.gflow.mapper.FlowExecutionMapper;
 import com.gsralex.gflow.mapper.FlowMapper;
 import com.gsralex.gflow.entity.Flow;
@@ -27,7 +28,7 @@ public class FlowExecutionService {
     public FlowExecutionService() {
     }
 
-    public Long create(String name, Map<String, Object> params) {
+    public Long createFlow(String name, Map<String, Object> params) {
         Flow flow = getFlowByName(name);
         Validate.notNull(flow, "未找到flow");
         FlowExecution flowExecution = new FlowExecution()
@@ -36,6 +37,9 @@ public class FlowExecutionService {
                 .setVersionId(flow.getVersionId());
         flowExecutionMapper.insert(flowExecution);
         return flowExecution.getId();
+
+
+
     }
 
     private Flow getFlowByName(String name) {

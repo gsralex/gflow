@@ -1,6 +1,6 @@
 package com.gsralex.gflow.executor.handler;
 
-import com.gsralex.gflow.common.message.GFlowMessage;
+import com.gsralex.gflow.common.message.GFlowRequest;
 import com.gsralex.gflow.executor.service.ExecutorService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -16,7 +16,7 @@ import static com.gsralex.gflow.common.constant.ActionConstants.*;
  * @date 2020/2/2
  */
 @Service
-public class ExecutorServerHandler extends SimpleChannelInboundHandler<GFlowMessage> {
+public class ExecutorServerHandler extends SimpleChannelInboundHandler<GFlowRequest> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutorServerHandler.class);
 
@@ -24,7 +24,7 @@ public class ExecutorServerHandler extends SimpleChannelInboundHandler<GFlowMess
     private ExecutorService executorService;
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, GFlowMessage message) throws Exception {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, GFlowRequest message) throws Exception {
         switch (message.getActionName()) {
             case EXECUTE_FLOW: {
                 Long execId = (Long) message.getParams().get("execId");
