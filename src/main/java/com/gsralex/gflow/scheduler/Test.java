@@ -16,7 +16,7 @@ public class Test {
     private FlowExecutionService service;
 
     public void test() {
-        service.create("test_flow", null);
+
     }
 
     public static void main(String[] args) {

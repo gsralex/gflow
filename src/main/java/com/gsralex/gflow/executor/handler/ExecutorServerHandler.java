@@ -24,6 +24,11 @@ public class ExecutorServerHandler extends SimpleChannelInboundHandler<GFlowRequ
     private ExecutorService executorService;
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        ctx.fireChannelActive();
+    }
+    
+    @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, GFlowRequest message) throws Exception {
         switch (message.getActionName()) {
             case EXECUTE_FLOW: {
