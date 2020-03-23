@@ -1,6 +1,6 @@
 package com.gsralex.gflow.executor.controller;
 
-import com.gsralex.gflow.common.entity.api.RestResponse;
+import com.gsralex.gflow.common.entity.api.FlowResponse;
 import com.gsralex.gflow.executor.service.FlowExecutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,16 +18,22 @@ public class ExecutorController {
     @Autowired
     private FlowExecutorService flowExecutorService;
 
-    @PostMapping("/flow/execute/{execId}")
+    @PostMapping("/flow/{execId}/execute")
     public Object executeFlow(@PathVariable(value = "execId") Long execId,
                               Map<String, Object> params) {
         flowExecutorService.executeFlow(execId, params);
-        return RestResponse.OK;
+        return FlowResponse.OK;
     }
 
-    @PutMapping("/flow/pause/{execId}")
+    @PutMapping("/flow/{execId}/pause")
     public Object pauseFlow(@PathVariable(value = "execId") Long execId) {
         flowExecutorService.pauseFlow(execId);
-        return RestResponse.OK;
+        return FlowResponse.OK;
+    }
+
+    @PutMapping("/flow/{execId}/stop")
+    public Object stopFlow(@PathVariable(value = "execId") Long execId){
+        flowExecutorService.stopFlow(execId);
+        return FlowResponse.OK;
     }
 }

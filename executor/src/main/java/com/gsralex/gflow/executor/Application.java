@@ -11,7 +11,7 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
  * @date 2020/3/22
  */
 @SpringBootApplication(scanBasePackages = {"com.gsralex.gflow.executor", "com.gsralex.gflow.common"})
-@MapperScan("com.gsralex.gflow.*.mapper")
+@MapperScan("com.gsralex.gflow.common.mapper")
 @EnableEurekaServer
 @EnableEurekaClient
 public class Application {
