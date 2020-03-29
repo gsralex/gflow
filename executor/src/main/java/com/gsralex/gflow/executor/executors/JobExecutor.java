@@ -4,12 +4,12 @@ package com.gsralex.gflow.executor.executors;
  * @author gsralex
  * @date 2020/3/1
  */
-public interface JobExecutor {
+public interface JobExecutor  {
 
     /**
      * 执行
      */
-    void execute() throws Exception;
+    void start() throws Exception;
 
     /**
      * 是否能取消

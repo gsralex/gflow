@@ -44,7 +44,6 @@ public class FlowExecutionService {
         return flowMapper.selectOne(query);
     }
 
-
     public void pause(Long id) {
         FlowExecution execution = flowExecutionMapper.selectById(id);
         Validate.notNull(execution, "未找到flow execution");

@@ -135,8 +135,8 @@ class FlowExecutorState {
     private void initPendingJobs() {
         for (ExecuteNode node : nodeMap.values()) {
             if (node.getJobStatus() == JobStatus.PENDING) {
-                //没有不成功的
-                if (!node.getPreJobs().stream().anyMatch(j -> j.getJobStatus() != JobStatus.SUCCESS)) {
+                //前置节点没有不成功的
+                if (node.getPreJobs().stream().noneMatch(j -> j.getJobStatus() != JobStatus.SUCCESS)) {
                     pendingNodes.add(node);
                 }
             }
@@ -147,6 +147,10 @@ class FlowExecutorState {
         return execId;
     }
 
+    /**
+     * 设置是否重试
+     * @param retried
+     */
     void setRetried(boolean retried) {
         this.retried = retried;
     }

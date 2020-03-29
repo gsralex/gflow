@@ -25,17 +25,17 @@ import java.util.function.Consumer;
  */
 public class FlowExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowExecutor.class);
-
-    private static final int CORE_POOL_SIZE = 10;
-    private static final int MAXIMUM_POOL_SIZE = 200;
-    private static final int CAPACITY_POOL_QUEUE = 1000;
+    private static final int JOB_CORE_POOL_SIZE = 20;
+    private static final int JOB_MAXIMUM_POOL_SIZE = 30;
+    private static final int JOB_KEEP_ALIVE_SECONDS = 300;
+    private static final int JOB_CAPACITY_POOL_QUEUE = 30;
 
     private static final int PAUSE_WAIT_MS = 10000;
     private static final int RUNNING_WAIT_MS = 10000;
 
-    private static ExecutorService jobExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE,
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(CAPACITY_POOL_QUEUE), new ThreadFactoryBuilder()
+    private static ExecutorService jobExecutor = new ThreadPoolExecutor(JOB_CORE_POOL_SIZE, JOB_MAXIMUM_POOL_SIZE,
+            JOB_KEEP_ALIVE_SECONDS, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(JOB_CAPACITY_POOL_QUEUE), new ThreadFactoryBuilder()
             .setNameFormat("gFlow-job-executor-thread-%d").build(), new ThreadPoolExecutor.AbortPolicy());
 
     private FlowExecutorState flowExecutorState;
@@ -119,7 +119,7 @@ public class FlowExecutor {
                 flowExecutorState.updateNodeStatus(node, JobStatus.RUNNING);
                 if (node.getJobType() == JobType.SHELL) {
                     ShellJobExecutor shellJobExecutor = new ShellJobExecutor(node);
-                    shellJobExecutor.execute();
+                    shellJobExecutor.start();
                 }
                 success = true;
             } catch (Exception e) {

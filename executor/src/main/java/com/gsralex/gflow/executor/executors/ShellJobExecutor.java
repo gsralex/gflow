@@ -14,8 +14,7 @@ import java.util.StringTokenizer;
  * @author gsralex
  * @date 2020/3/1
  */
-public class ShellJobExecutor extends AbstractJobExecutor {
-
+public class ShellJobExecutor implements JobExecutor {
     private static final int EXIT_SUCCESS_CODE = 0;
     private List<String> commandLines = new ArrayList<>();
     private Process process;
@@ -28,8 +27,8 @@ public class ShellJobExecutor extends AbstractJobExecutor {
 
 
     @Override
-    public void execute() throws Exception {
-        List<String> lines = Arrays.asList(StringUtils.split(node.getJobDesc(), LINE_DELIM));
+    public void start() throws Exception {
+        String[] lines = StringUtils.split(node.getJobDesc(), LINE_DELIM);
         for (String line : lines) {
             StringTokenizer tokenizer = new StringTokenizer(line, " ");
             while (tokenizer.hasMoreTokens()) {

@@ -32,8 +32,14 @@ public class ExecutorController {
     }
 
     @PutMapping("/flow/{execId}/stop")
-    public Object stopFlow(@PathVariable(value = "execId") Long execId){
+    public Object stopFlow(@PathVariable(value = "execId") Long execId) {
         flowExecutorService.stopFlow(execId);
+        return FlowResponse.OK;
+    }
+
+    @PutMapping("/flow/{execId}/retry-failed")
+    public Object retryFailed(@PathVariable(value = "execId") Long execId) {
+        flowExecutorService.retryFailedJobs(execId);
         return FlowResponse.OK;
     }
 }
