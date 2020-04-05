@@ -1,9 +1,11 @@
 package com.gsralex.gflow.executor;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.gsralex.gflow.common.entity.FlowJob;
 import com.gsralex.gflow.common.entity.FlowJobExecution;
 import com.gsralex.gflow.common.enums.JobStatus;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -20,6 +22,9 @@ class FlowExecutorState {
     private Set<ExecuteNode> pendingNodes = new LinkedHashSet<>();
     private Set<ExecuteNode> failedNodes = new LinkedHashSet<>();
 
+    private ExecuteNode header = new ExecuteNode().setJobId(-100L);
+    private ExecuteNode tail = new ExecuteNode().setJobId(-200L);
+
     private static final int MAX_RETRY_CNT = 3;
 
     private boolean retried = false;
@@ -34,6 +39,7 @@ class FlowExecutorState {
             this.flowJobExecutions = new ArrayList<>();
         }
         parseDagNode(flowJobs);
+        checkCircularDependency();
         initJobsStatus();
         initPendingJobs();
     }
@@ -106,6 +112,7 @@ class FlowExecutorState {
         }
         for (FlowJob flowJob : flowJobs) {
             ExecuteNode executeNode = nodeMap.get(flowJob.getId());
+
             if (StringUtils.isNotBlank(flowJob.getNextJobs())) {
                 List<Long> nextJobIds = Arrays.stream(StringUtils.split(flowJob.getNextJobs(), ","))
                         .map(Long::parseLong).collect(Collectors.toList());
@@ -149,9 +156,47 @@ class FlowExecutorState {
 
     /**
      * 设置是否重试
+     *
      * @param retried
      */
     void setRetried(boolean retried) {
         this.retried = retried;
     }
+
+    /**
+     * 验证是否出现循环依赖 DFS
+     *
+     * @return
+     */
+    @VisibleForTesting
+    public boolean checkCircularDependency() {
+        for (ExecuteNode node : nodeMap.values()) {
+            if (CollectionUtils.isEmpty(node.getPreJobs())) {
+                header.getNextJobs().add(node);
+                node.getPreJobs().add(header);
+            }
+
+            if (CollectionUtils.isEmpty(node.getNextJobs())) {
+                tail.getPreJobs().add(node);
+                node.getNextJobs().add(tail);
+            }
+        }
+        Validate.notEmpty(header.getNextJobs(), "dag环路");
+        Validate.notEmpty(tail.getPreJobs(), "dag环路");
+        return dfsNode(header, new LinkedHashSet<>());
+    }
+
+    private boolean dfsNode(ExecuteNode currentNode, LinkedHashSet<Long> linkedJobs) {
+        if (linkedJobs.contains(currentNode.getJobId())) {
+            return true;
+        }
+        linkedJobs.add(currentNode.getJobId());
+        if (currentNode.getNextJobs().size() != 0) {
+            for (ExecuteNode next : currentNode.getNextJobs()) {
+                return dfsNode(next, new LinkedHashSet<>(linkedJobs));
+            }
+        }
+        return false;
+    }
+
 }
