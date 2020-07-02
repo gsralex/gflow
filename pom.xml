@@ -34,7 +34,7 @@
         <slf4j.version>1.7.30</slf4j.version>
         <commons-lang3.version>3.9</commons-lang3.version>
         <commons-text.version>1.8</commons-text.version>
-        <mysql.version>5.1.48</mysql.version>
+        <mysql.version>8.0.16</mysql.version>
         <junit.version>4.13</junit.version>
         <protostuff.version>1.5.9</protostuff.version>
         <msgpack.version>0.6.12</msgpack.version>
